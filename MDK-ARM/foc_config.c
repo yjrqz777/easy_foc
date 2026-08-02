@@ -36,44 +36,52 @@ Motor_Params_t motor_params = {0};
  * @param  channel_count: 要校准的通道数量
  * @retval 无
  */
-void ADC_ZeroCalibration() {
-    uint32_t sum[2] = {0};  // 累加和
-    uint16_t read_count = 0; // 读取次数
-		uint16_t zero_offset[2]={0};
-    
+void ADC_ZeroCalibration(void) {
+    uint32_t sum[2] = {0, 0};   // 累加和
+    uint16_t read_count = 0;    // 读取次数
+    uint16_t avg[2] = {0, 0};   // 平均值（零位）
+
     printf("》开始ADC零位校准...\r\n");
     printf("等待100ms稳定...\r\n");
-    
+
     // 1. 延时100ms等待系统稳定
     HAL_Delay(100);
-    
+
     printf("开始采集1000个样本...\r\n");
-    
-    // 2. 每1ms读取一次，共100次
+
+    // 2. 每1ms读取一次，共1000次
     for (read_count = 0; read_count < 1000; read_count++) {
-        
-				// 累加adc_buffer[0]和adc_buffer[1]的值
-				sum[0] += adc_buffer[0];
-				sum[1] += adc_buffer[1];
-				
-				// 打印进度
-				if ((read_count + 1) % 100 == 0) {
-						printf("已采集 %d/1000 个样本\r\n", read_count + 1);
-				}
-        
+
+        // 累加adc_buffer[0]和adc_buffer[1]的值
+        sum[0] += adc_buffer[0];
+        sum[1] += adc_buffer[1];
+
+        // 打印进度
+        if ((read_count + 1) % 100 == 0) {
+            printf("已采集 %d/1000 个样本\r\n", read_count + 1);
+        }
+
         // 等待1ms
         HAL_Delay(1);
     }
-    
+
     // 3. 计算平均值
-    zero_offset[0] = (uint16_t)(sum[0] / 1000);
-    zero_offset[1] = (uint16_t)(sum[1] / 1000);
-    
+    avg[0] = (uint16_t)(sum[0] / 1000);
+    avg[1] = (uint16_t)(sum[1] / 1000);
+
+    // 4. 合理性检查：零位应在ADC量程中部，异常时保留默认偏置
+    if ((avg[0] > 500) && (avg[0] < 3600) && (avg[1] > 500) && (avg[1] < 3600)) {
+        adc_zero_offset[0] = avg[0];
+        adc_zero_offset[1] = avg[1];
+    } else {
+        printf("警告：零位校准结果异常，保留默认偏置 %d/%d\r\n", adc_zero_offset[0], adc_zero_offset[1]);
+    }
+
     printf("ADC零位校准完成！\r\n");
-    printf("通道0零位值: %d\r\n", zero_offset[0]);
-    printf("通道1零位值: %d\r\n", zero_offset[1]);
-    printf("通道0零位电压: %.3fV\r\n", (zero_offset[0] * 3.3f) / 4095.0f);
-    printf("通道1零位电压: %.3fV\r\n", (zero_offset[1] * 3.3f) / 4095.0f);
+    printf("通道0零位值: %d\r\n", adc_zero_offset[0]);
+    printf("通道1零位值: %d\r\n", adc_zero_offset[1]);
+    printf("通道0零位电压: %.3fV\r\n", (adc_zero_offset[0] * 3.3f) / 4095.0f);
+    printf("通道1零位电压: %.3fV\r\n", (adc_zero_offset[1] * 3.3f) / 4095.0f);
 }
 
 

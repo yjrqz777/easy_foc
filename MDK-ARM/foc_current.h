@@ -5,9 +5,12 @@
 #define ADC_BUFFER_SIZE 1
 // 选项1：2相电流采样（U/V两相，W相通过计算得出）
 #define CURRENT_PHASE_NUM  2
+#define ADC_CHANNEL_NUM    2
 extern uint16_t adc_buffer[ADC_BUFFER_SIZE * 2];  // 2个通道的数据缓冲区
 
 extern uint16_t ADC_data_ready;
+
+extern volatile uint16_t adc_zero_offset[ADC_CHANNEL_NUM];  /* 零位偏置（原始计数），开机校准后更新 */
 
 
 

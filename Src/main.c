@@ -182,8 +182,8 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
              //shaft_speed_1000 = AS5600_DIR*(d_shaft_angle_1000 * 1000 * 60 / _2PI_1000);//单位是rpm(每分钟圈数)
             
             // 4. 读取并处理ADC电流采样（去除偏置）
-            currents.a = adc_buffer[0] - 1976;  // 通道A电流，1975为偏置值
-            currents.b = adc_buffer[1] - 1978;  // 通道B电流
+            currents.a = (int32_t)adc_buffer[0] - adc_zero_offset[0];  // 通道A电流（减零位偏置）
+            currents.b = (int32_t)adc_buffer[1] - adc_zero_offset[1];  // 通道B电流（减零位偏置）
             FOC_CurrentProcessing(&currents, electrical_angle_1000);
             
             // 5. 根据pid_flag选择控制模式
@@ -281,10 +281,13 @@ int main(void)
 	}
 	//用定时器触发ADC采样
 	__HAL_TIM_SET_COMPARE(&htim2, TIM_CHANNEL_2, PWM_Period-10);
+
+	//开机ADC零位自动校准（PA7未使能，电机电流为0）
+	ADC_ZeroCalibration();
 	
 
 	//电机参数识别程序
-	//foc_config_main();while(1){}
+	// foc_config_main();while(1){}
 
 	//要么执行简单的电机零位识别，获取zero_shaft_angle_1000
 	HAL_GPIO_WritePin(GPIOA,GPIO_PIN_7,GPIO_PIN_SET);// PA7使能电机驱动芯片

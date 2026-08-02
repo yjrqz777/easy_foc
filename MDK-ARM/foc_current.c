@@ -6,6 +6,7 @@
 
 uint16_t adc_buffer[ADC_BUFFER_SIZE * 2];  // 2个通道的数据缓冲区
 uint16_t ADC_data_ready=0;
+volatile uint16_t adc_zero_offset[ADC_CHANNEL_NUM] = {1976, 1978};  /* 默认偏置，开机校准后会更新 */
 
 
 // ADC转换完成回调函数（可选）
