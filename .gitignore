@@ -1,0 +1,40 @@
+﻿# Keil MDK-ARM build output
+MDK-ARM/20251211_FOC/
+
+# Keil user-specific project state
+MDK-ARM/*.uvguix.*
+MDK-ARM/*.uvgui.*
+MDK-ARM/*.uvoptx
+
+# Keil compiler/linker artifacts (including alternate output folders)
+*.o
+*.d
+*.axf
+*.elf
+*.hex
+*.bin
+*.map
+*.lnp
+*.lst
+*.crf
+*.dep
+*.iex
+*.build_log.htm
+
+# IDE-local configuration and caches
+.vscode/
+*.code-workspace
+
+# Logs, locks, backups, and temporary files
+*.log
+*.lock
+*.tmp
+*.temp
+*.bak
+*.old
+*~
+
+# Operating-system metadata
+.DS_Store
+Thumbs.db
+Desktop.ini
